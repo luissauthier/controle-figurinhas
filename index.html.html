@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Controle Troca-Troca ABC</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 80px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+
+    h1 { font-size: 18px; margin: 0 0 10px; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      padding: 10px 4px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    main { padding: 14px; max-width: 720px; margin: 0 auto; }
+    section { display: none; }
+    section.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+
+    .grid { display: grid; gap: 10px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 16px;
+      background: white;
+    }
+
+    textarea { min-height: 82px; resize: vertical; }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr 98px;
+      gap: 10px;
+      align-items: end;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .item-row:last-child { border-bottom: 0; }
+
+    .price-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .total-box {
+      position: sticky;
+      bottom: 0;
+      z-index: 4;
+      background: #111827;
+      color: white;
+      padding: 14px;
+      border-radius: 14px;
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .total-box strong { font-size: 24px; }
+
+    button {
+      border: none;
+      background: var(--primary);
+      color: white;
+      padding: 13px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover { background: var(--primary-dark); }
+    button.secondary { background: #374151; }
+    button.danger { background: var(--danger); }
+    button.success { background: var(--success); }
+
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .summary {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .record {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+    .record:last-child { border-bottom: 0; }
+    .record-title { font-weight: 700; margin-bottom: 4px; }
+    .record-meta { font-size: 13px; color: var(--muted); line-height: 1.4; }
+    .record-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .record-actions button { padding: 9px 10px; font-size: 13px; border-radius: 10px; }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .small { font-size: 12px; color: var(--muted); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Controle Troca-Troca ABC</h1>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('venda')">Venda</button>
+      <button class="tab-btn" onclick="openTab('compra')">Compra</button>
+      <button class="tab-btn" onclick="openTab('historico')">Histórico</button>
+      <button class="tab-btn" onclick="openTab('exportar')">Exportar</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="venda" class="active">
+      <div id="saleEditBanner" class="card hidden" style="border-color:#2563eb; background:#eff6ff;">
+        <strong>✏️ Editando venda</strong>
+        <p class="small">Altere qualquer informação e salve para atualizar o registro.</p>
+        <button class="secondary" onclick="cancelSaleEdit()">Cancelar edição</button>
+      </div>
+      <div class="card grid">
+        <div>
+          <label>Nome do comprador (opcional)</label>
+          <input id="saleName" placeholder="Ex.: João" />
+        </div>
+        <div>
+          <label>Forma de pagamento</label>
+          <select id="salePayment">
+            <option>Pix Nubank</option>
+            <option>Dinheiro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong>Itens vendidos</strong>
+        <div class="item-row"><div><label>Normais</label><div class="price-hint">R$ 1,00 cada</div></div><input id="qNormais" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>Brasil e/ou perfiladas</label><div class="price-hint">R$ 2,00 cada</div></div><input id="qBrasil" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>Brilhantes</label><div class="price-hint">R$ 2,50 cada</div></div><input id="qBrilhantes" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>FWC 00 até 08</label><div class="price-hint">R$ 10,00 cada</div></div><input id="qFwcAntigas" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>FWC 09 até 19</label><div class="price-hint">R$ 5,00 cada</div></div><input id="qFwcNovas" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>Pacotes</label><div class="price-hint">R$ 6,50 cada / R$ 6,00 acima de 50 un.</div></div><input id="qPacotes" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>Craques</label><div class="price-hint">CR7, Vini Jr, Messi, Mbappé, Haaland e Yamal — R$ 10,00 cada</div></div><input id="qCraques" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>Coca-Cola</label><div class="price-hint">R$ 3,00 cada</div></div><input id="qCoca" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div class="item-row"><div><label>McDonald's</label><div class="price-hint">R$ 15,00 cada</div></div><input id="qMc" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+      </div>
+
+      <div class="card grid">
+        <strong>Legend / Especial</strong>
+        <div>
+          <label>Legend vendida</label>
+          <select id="legendSelect">
+            <option value="">Nenhuma</option>
+            <option value="Raul Jimenez (Base)|40">Raul Jimenez (Base) - R$ 40</option>
+            <option value="Cody Gakpo (Base)|40">Cody Gakpo (Base) - R$ 40</option>
+            <option value="Alphonso Davies (Base)|40">Alphonso Davies (Base) - R$ 40</option>
+            <option value="CR7 (Base)|100">CR7 (Base) - R$ 100</option>
+            <option value="Jude Bellingham (Bronze)|60">Jude Bellingham (Bronze) - R$ 60</option>
+            <option value="Cody Gakpo (Bronze)|60">Cody Gakpo (Bronze) - R$ 60</option>
+            <option value="Achraf Hakimi (Ouro)|250">Achraf Hakimi (Ouro) - R$ 250</option>
+            <option value="custom">Outra / consultar</option>
+          </select>
+        </div>
+        <div id="customLegendBox" class="hidden grid grid-2">
+          <div><label>Nome da legend</label><input id="customLegendName" placeholder="Ex.: Jogador (Prata)" /></div>
+          <div><label>Valor</label><input id="customLegendPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" /></div>
+        </div>
+      </div>
+
+      <div class="card grid">
+        <div>
+          <label>Desconto</label>
+          <input id="saleDiscount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" />
+        </div>
+        <div>
+          <label>Observação</label>
+          <input id="saleObs" value="Troca-Troca ABC" />
+        </div>
+        <div>
+          <label>Descrição automática</label>
+          <div id="saleDescription" class="summary">Nenhum item informado.</div>
+        </div>
+      </div>
+
+      <div class="card grid">
+        <strong>Ajustes avançados / edição</strong>
+        <p class="small">Para venda nova, pode deixar em branco. Na edição, estes campos permitem alterar todas as informações salvas.</p>
+        <div class="grid grid-2">
+          <div><label>Data</label><input id="saleData" placeholder="automático" /></div>
+          <div><label>Pago dia</label><input id="salePagoDia" placeholder="automático" /></div>
+        </div>
+        <div class="grid grid-2">
+          <div><label>Entregue dia</label><input id="saleEntregueDia" placeholder="automático" /></div>
+          <div><label>Valor manual</label><input id="saleManualTotal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="usar cálculo automático" /></div>
+        </div>
+        <div class="grid grid-2">
+          <div><label>Pacotes manual</label><input id="salePacotesManual" type="number" min="0" inputmode="numeric" placeholder="automático" /></div>
+          <div><label>Valor pacotes manual</label><input id="saleValorPacotesManual" type="number" min="0" step="0.01" inputmode="decimal" placeholder="automático" /></div>
+        </div>
+        <div><label>Descrição manual</label><textarea id="saleManualDescription" placeholder="se preencher, substitui a descrição automática"></textarea></div>
+      </div>
+
+      <div class="total-box">
+        <div>
+          <div class="small">Total da venda</div>
+          <strong id="saleTotal">R$ 0,00</strong>
+        </div>
+        <button id="saleSaveButton" class="success" onclick="saveSale()">Salvar venda</button>
+      </div>
+    </section>
+
+    <section id="compra">
+      <div id="buyEditBanner" class="card hidden" style="border-color:#2563eb; background:#eff6ff;">
+        <strong>✏️ Editando compra</strong>
+        <p class="small">Altere qualquer informação e salve para atualizar o registro.</p>
+        <button class="secondary" onclick="cancelBuyEdit()">Cancelar edição</button>
+      </div>
+      <div class="card grid">
+        <div>
+          <label>Descrição do que comprei</label>
+          <textarea id="buyDescription" placeholder="Ex.: lote com 30 figurinhas variadas"></textarea>
+        </div>
+        <div>
+          <label>Local / com quem comprei</label>
+          <input id="buyLocal" placeholder="Ex.: banca / pessoa" />
+        </div>
+        <div class="grid grid-2">
+          <div><label>Valor</label><input id="buyValue" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" /></div>
+          <div><label>Forma de pagamento</label><select id="buyPayment"><option>Pix Nubank</option><option>Dinheiro</option></select></div>
+        </div>
+        <div>
+          <label>Obs.</label>
+          <input id="buyObs" value="Troca-Troca ABC" />
+        </div>
+        <div class="grid grid-2">
+          <div><label>Data</label><input id="buyData" placeholder="automático" /></div>
+          <div><label>Recebimento</label><input id="buyRecebimento" placeholder="automático" /></div>
+        </div>
+        <button id="buySaveButton" class="success" onclick="saveBuy()">Salvar compra/saída</button>
+      </div>
+    </section>
+
+    <section id="historico">
+      <div class="card">
+        <div class="actions">
+          <button onclick="renderHistory()">Atualizar</button>
+          <button class="danger" onclick="clearAll()">Limpar tudo</button>
+        </div>
+      </div>
+      <div class="card">
+        <div><span class="pill" id="countSales">0 vendas</span> <span class="pill" id="countBuys">0 compras</span></div>
+        <p><strong>Saldo:</strong> <span id="balance">R$ 0,00</span></p>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <section id="exportar">
+      <div class="card grid">
+        <p>Use os botões abaixo para baixar os arquivos CSV e depois importar/colar na sua planilha financeira.</p>
+        <button onclick="exportCSV('sales')">Exportar vendas CSV</button>
+        <button onclick="exportCSV('buys')">Exportar compras CSV</button>
+        <button onclick="exportBackup()" class="secondary">Baixar backup JSON</button>
+        <label>Restaurar backup JSON</label>
+        <input type="file" id="restoreFile" accept="application/json" />
+        <button onclick="restoreBackup()" class="secondary">Restaurar backup</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'controle_troca_troca_abc_v1';
+    let editingSaleIndex = null;
+    let editingBuyIndex = null;
+
+    const itemMap = [
+      ['qNormais', 'Normais', 1],
+      ['qBrasil', 'Brasil e/ou perfiladas', 2],
+      ['qBrilhantes', 'Brilhantes', 2.5],
+      ['qFwcAntigas', 'FWC 00 até 08', 10],
+      ['qFwcNovas', 'FWC 09 até 19', 5],
+      ['qCraques', 'Craques', 10],
+      ['qCoca', 'Coca-Cola', 3],
+      ['qMc', "McDonald's", 15]
+    ];
+
+    function getData() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"sales":[],"buys":[]}');
+    }
+
+    function setData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function nowBR() {
+      return new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      }).format(new Date());
+    }
+
+    function money(value) {
+      return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function num(id) {
+      return Number(String(document.getElementById(id).value || '0').replace(',', '.')) || 0;
+    }
+
+    function setVal(id, value) {
+      document.getElementById(id).value = value ?? '';
+    }
+
+    function openTab(tab) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      const btns = document.querySelectorAll('.tab-btn');
+      const map = { venda: 0, compra: 1, historico: 2, exportar: 3 };
+      if (btns[map[tab]]) btns[map[tab]].classList.add('active');
+      if (tab === 'historico') renderHistory();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function calculateSale() {
+      let total = 0;
+      let desc = [];
+      let quantities = {};
+      let pacotesQty = num('qPacotes');
+      let pacotesUnit = pacotesQty >= 50 ? 6 : 6.5;
+      let pacotesTotal = pacotesQty * pacotesUnit;
+
+      itemMap.forEach(([id, name, price]) => {
+        const q = num(id);
+        quantities[id] = q;
+        if (q > 0) {
+          total += q * price;
+          desc.push(`${q}x ${name}`);
+        }
+      });
+
+      quantities.qPacotes = pacotesQty;
+      if (pacotesQty > 0) {
+        total += pacotesTotal;
+        desc.push(`${pacotesQty}x Pacotes (${money(pacotesUnit)} cada)`);
+      }
+
+      const legendValue = document.getElementById('legendSelect').value;
+      let legendName = '';
+      let legendPrice = 0;
+      let legendSavedValue = legendValue;
+      if (legendValue && legendValue !== 'custom') {
+        [legendName, legendPrice] = legendValue.split('|');
+        legendPrice = Number(legendPrice);
+      } else if (legendValue === 'custom') {
+        legendName = document.getElementById('customLegendName').value.trim();
+        legendPrice = num('customLegendPrice');
+      }
+      if (legendName && legendPrice > 0) {
+        total += legendPrice;
+        desc.push(`Legend: ${legendName}`);
+      }
+
+      const discount = num('saleDiscount');
+      total = Math.max(0, total - discount);
+      if (discount > 0) desc.push(`Desconto: -${money(discount)}`);
+
+      const manualDesc = document.getElementById('saleManualDescription').value.trim();
+      const manualTotal = num('saleManualTotal');
+      const shownDesc = manualDesc || desc.join('\n');
+      const shownTotal = manualTotal > 0 ? manualTotal : total;
+
+      document.getElementById('saleDescription').textContent = shownDesc || 'Nenhum item informado.';
+      document.getElementById('saleTotal').textContent = money(shownTotal);
+
+      return {
+        total: shownTotal,
+        calculatedTotal: total,
+        desc: manualDesc || desc.join('; '),
+        autoDesc: desc.join('; '),
+        pacotesQty,
+        pacotesValue: pacotesTotal,
+        discount,
+        quantities,
+        legendValue: legendSavedValue,
+        customLegendName: document.getElementById('customLegendName').value.trim(),
+        customLegendPrice: num('customLegendPrice'),
+        manualTotal,
+        manualDesc
+      };
+    }
+
+    function saveSale() {
+      const calc = calculateSale();
+      if (calc.total <= 0) return alert('Informe pelo menos um item vendido ou um valor manual.');
+
+      const date = nowBR();
+      const sale = {
+        tipo: 'venda',
+        data: document.getElementById('saleData').value.trim() || date,
+        nome: document.getElementById('saleName').value.trim(),
+        descricao: calc.desc,
+        valor: calc.total,
+        formaPagamento: document.getElementById('salePayment').value,
+        pagoDia: document.getElementById('salePagoDia').value.trim() || date,
+        entregueDia: document.getElementById('saleEntregueDia').value.trim() || date,
+        obs: document.getElementById('saleObs').value.trim() || 'Troca-Troca ABC',
+        pacotes: num('salePacotesManual') || calc.pacotesQty,
+        valorPacotes: num('saleValorPacotesManual') || calc.pacotesValue,
+        desconto: calc.discount,
+        quantities: calc.quantities,
+        legendValue: calc.legendValue,
+        customLegendName: calc.customLegendName,
+        customLegendPrice: calc.customLegendPrice,
+        manualTotal: calc.manualTotal,
+        manualDescription: calc.manualDesc
+      };
+
+      const data = getData();
+      if (editingSaleIndex !== null) {
+        data.sales[editingSaleIndex] = sale;
+        setData(data);
+        resetSale();
+        alert('Venda atualizada!');
+      } else {
+        data.sales.unshift(sale);
+        setData(data);
+        resetSale();
+        alert('Venda salva!');
+      }
+    }
+
+    function resetSale() {
+      ['saleName','qNormais','qBrasil','qBrilhantes','qFwcAntigas','qFwcNovas','qPacotes','qCraques','qCoca','qMc','saleDiscount','customLegendName','customLegendPrice','saleData','salePagoDia','saleEntregueDia','saleManualTotal','salePacotesManual','saleValorPacotesManual','saleManualDescription'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('salePayment').value = 'Pix Nubank';
+      document.getElementById('saleObs').value = 'Troca-Troca ABC';
+      document.getElementById('legendSelect').value = '';
+      document.getElementById('customLegendBox').classList.add('hidden');
+      editingSaleIndex = null;
+      document.getElementById('saleEditBanner').classList.add('hidden');
+      document.getElementById('saleSaveButton').textContent = 'Salvar venda';
+      calculateSale();
+    }
+
+    function saveBuy() {
+      const value = num('buyValue');
+      const desc = document.getElementById('buyDescription').value.trim();
+      if (!desc || value <= 0) return alert('Informe a descrição e o valor da compra.');
+      const date = nowBR();
+      const buy = {
+        tipo: 'compra',
+        data: document.getElementById('buyData').value.trim() || date,
+        descricao: desc,
+        local: document.getElementById('buyLocal').value.trim(),
+        valor: value,
+        formaPagamento: document.getElementById('buyPayment').value,
+        recebimento: document.getElementById('buyRecebimento').value.trim() || date,
+        obs: document.getElementById('buyObs').value.trim() || 'Troca-Troca ABC'
+      };
+      const data = getData();
+      if (editingBuyIndex !== null) {
+        data.buys[editingBuyIndex] = buy;
+        setData(data);
+        resetBuy();
+        alert('Compra/saída atualizada!');
+      } else {
+        data.buys.unshift(buy);
+        setData(data);
+        resetBuy();
+        alert('Compra/saída salva!');
+      }
+    }
+
+    function resetBuy() {
+      document.getElementById('buyDescription').value = '';
+      document.getElementById('buyLocal').value = '';
+      document.getElementById('buyValue').value = '';
+      document.getElementById('buyPayment').value = 'Pix Nubank';
+      document.getElementById('buyObs').value = 'Troca-Troca ABC';
+      document.getElementById('buyData').value = '';
+      document.getElementById('buyRecebimento').value = '';
+      editingBuyIndex = null;
+      document.getElementById('buyEditBanner').classList.add('hidden');
+      document.getElementById('buySaveButton').textContent = 'Salvar compra/saída';
+    }
+
+    function renderHistory() {
+      const data = getData();
+      const list = document.getElementById('historyList');
+      const salesTotal = data.sales.reduce((s, x) => s + Number(x.valor), 0);
+      const buysTotal = data.buys.reduce((s, x) => s + Number(x.valor), 0);
+      document.getElementById('countSales').textContent = `${data.sales.length} vendas`;
+      document.getElementById('countBuys').textContent = `${data.buys.length} compras`;
+      document.getElementById('balance').textContent = money(salesTotal - buysTotal);
+
+      const all = [
+        ...data.sales.map((r, index) => ({ ...r, collection: 'sales', index })),
+        ...data.buys.map((r, index) => ({ ...r, collection: 'buys', index }))
+      ];
+      if (!all.length) {
+        list.innerHTML = '<p class="small">Nenhum lançamento ainda.</p>';
+        return;
+      }
+      list.innerHTML = all.map(r => `
+        <div class="record">
+          <div class="record-title">${r.tipo === 'venda' ? '🟢 Venda' : '🔴 Compra'} — ${money(r.valor)}</div>
+          <div class="record-meta">
+            ${escapeHtml(r.data || '')}<br>
+            ${r.nome ? 'Cliente: ' + escapeHtml(r.nome) + '<br>' : ''}
+            ${r.local ? 'Local: ' + escapeHtml(r.local) + '<br>' : ''}
+            ${escapeHtml(r.descricao || '')}<br>
+            Pagamento: ${escapeHtml(r.formaPagamento || '')}<br>
+            ${r.tipo === 'venda' ? 'Pago: ' + escapeHtml(r.pagoDia || '') + '<br>Entregue: ' + escapeHtml(r.entregueDia || '') + '<br>' : 'Recebimento: ' + escapeHtml(r.recebimento || '') + '<br>'}
+            Obs.: ${escapeHtml(r.obs || '')}
+          </div>
+          <div class="record-actions">
+            <button class="secondary" onclick="editRecord('${r.collection}', ${r.index})">✏️ Editar</button>
+            <button class="danger" onclick="deleteRecord('${r.collection}', ${r.index})">🗑️ Excluir</button>
+          </div>
+        </div>`).join('');
+    }
+
+    function editRecord(collection, index) {
+      const data = getData();
+      const record = data[collection][index];
+      if (!record) return alert('Registro não encontrado.');
+
+      if (collection === 'sales') {
+        resetSale();
+        editingSaleIndex = index;
+        setVal('saleName', record.nome || '');
+        setVal('salePayment', record.formaPagamento || 'Pix Nubank');
+        setVal('saleObs', record.obs || 'Troca-Troca ABC');
+        setVal('saleDiscount', record.desconto || '');
+        setVal('saleData', record.data || '');
+        setVal('salePagoDia', record.pagoDia || '');
+        setVal('saleEntregueDia', record.entregueDia || '');
+        setVal('saleManualTotal', record.manualTotal || record.valor || '');
+        setVal('salePacotesManual', record.pacotes || '');
+        setVal('saleValorPacotesManual', record.valorPacotes || '');
+        setVal('saleManualDescription', record.manualDescription || record.descricao || '');
+
+        if (record.quantities) {
+          Object.entries(record.quantities).forEach(([id, value]) => {
+            if (document.getElementById(id)) setVal(id, value || '');
+          });
+        }
+        if (record.legendValue) {
+          setVal('legendSelect', record.legendValue);
+          document.getElementById('customLegendBox').classList.toggle('hidden', record.legendValue !== 'custom');
+          setVal('customLegendName', record.customLegendName || '');
+          setVal('customLegendPrice', record.customLegendPrice || '');
+        }
+        document.getElementById('saleEditBanner').classList.remove('hidden');
+        document.getElementById('saleSaveButton').textContent = 'Atualizar venda';
+        calculateSale();
+        openTab('venda');
+      } else {
+        resetBuy();
+        editingBuyIndex = index;
+        setVal('buyDescription', record.descricao || '');
+        setVal('buyLocal', record.local || '');
+        setVal('buyValue', record.valor || '');
+        setVal('buyPayment', record.formaPagamento || 'Pix Nubank');
+        setVal('buyObs', record.obs || 'Troca-Troca ABC');
+        setVal('buyData', record.data || '');
+        setVal('buyRecebimento', record.recebimento || '');
+        document.getElementById('buyEditBanner').classList.remove('hidden');
+        document.getElementById('buySaveButton').textContent = 'Atualizar compra/saída';
+        openTab('compra');
+      }
+    }
+
+    function cancelSaleEdit() { resetSale(); }
+    function cancelBuyEdit() { resetBuy(); }
+
+    function deleteRecord(collection, index) {
+      const data = getData();
+      const record = data[collection][index];
+      if (!record) return alert('Registro não encontrado.');
+      const label = collection === 'sales' ? 'venda' : 'compra';
+      if (!confirm(`Tem certeza que deseja excluir esta ${label} de ${money(record.valor)}?`)) return;
+      data[collection].splice(index, 1);
+      setData(data);
+      renderHistory();
+    }
+
+    function clearAll() {
+      if (confirm('Tem certeza que deseja apagar todos os registros deste aparelho?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        resetSale();
+        resetBuy();
+        renderHistory();
+      }
+    }
+
+    function csvEscape(v) {
+      return `"${String(v ?? '').replaceAll('"', '""')}"`;
+    }
+
+    function download(filename, content, type='text/csv;charset=utf-8;') {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCSV(type) {
+      const data = getData();
+      let rows, headers, filename;
+      if (type === 'sales') {
+        headers = ['Data','Nome','Descrição','Valor total','Forma de pag.','Pago dia','Entregue dia','Obs.','Pacotes','Valor pacotes','Desconto'];
+        rows = data.sales.map(s => [s.data,s.nome,s.descricao,s.valor,s.formaPagamento,s.pagoDia,s.entregueDia,s.obs,s.pacotes,s.valorPacotes,s.desconto]);
+        filename = 'vendas-troca-troca-abc.csv';
+      } else {
+        headers = ['Data','Descrição','Local','Valor','Forma de pag.','Recebimento','Obs.'];
+        rows = data.buys.map(b => [b.data,b.descricao,b.local,b.valor,b.formaPagamento,b.recebimento,b.obs]);
+        filename = 'compras-troca-troca-abc.csv';
+      }
+      const csv = [headers, ...rows].map(row => row.map(csvEscape).join(';')).join('\n');
+      download(filename, csv);
+    }
+
+    function exportBackup() {
+      download('backup-controle-troca-troca-abc.json', JSON.stringify(getData(), null, 2), 'application/json');
+    }
+
+    function restoreBackup() {
+      const file = document.getElementById('restoreFile').files[0];
+      if (!file) return alert('Selecione um arquivo JSON.');
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.sales || !data.buys) throw new Error('Formato inválido');
+          setData(data);
+          alert('Backup restaurado!');
+          renderHistory();
+        } catch {
+          alert('Arquivo inválido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    document.querySelectorAll('input, select, textarea').forEach(el => el.addEventListener('input', calculateSale));
+    document.getElementById('legendSelect').addEventListener('change', () => {
+      document.getElementById('customLegendBox').classList.toggle('hidden', document.getElementById('legendSelect').value !== 'custom');
+      calculateSale();
+    });
+    calculateSale();
+  </script>
+</body>
+</html>
