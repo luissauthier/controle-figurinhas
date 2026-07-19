@@ -2,8 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Controle Troca-Troca ABC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="Controle de vendas, compras e agenda de figurinhas" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Figurinhas" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <title>Controle de Figurinhas</title>
   <style>
     :root {
       --bg: #f5f6fa;
@@ -14,7 +24,10 @@
       --primary-dark: #1d4ed8;
       --danger: #dc2626;
       --success: #16a34a;
+      --warning: #d97706;
       --border: #e5e7eb;
+      --sidebar-w: 220px;
+      --topbar-h: 56px;
     }
 
     * { box-sizing: border-box; }
@@ -26,42 +39,151 @@
       padding-bottom: 80px;
     }
 
-    header {
-      position: sticky;
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .45);
+      z-index: 40;
+    }
+    body.nav-open .sidebar-overlay { display: block; }
+
+    .sidebar {
+      position: fixed;
       top: 0;
-      z-index: 5;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 14px;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-w);
+      background: #0f172a;
+      color: #f8fafc;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 14px;
+      box-shadow: 4px 0 20px rgba(0,0,0,.12);
     }
 
-    h1 { font-size: 18px; margin: 0 0 10px; }
+    .sidebar-brand {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin: 0 0 18px;
+      color: #fff;
+      padding: 0 6px;
+    }
 
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
       gap: 6px;
+      flex: 1;
     }
 
     .tab-btn {
-      border: 1px solid var(--border);
-      background: #f9fafb;
-      padding: 10px 4px;
+      width: 100% !important;
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 12px 14px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+      box-shadow: none;
+    }
+
+    .tab-btn:hover {
+      background: #1e293b;
+      color: #fff;
     }
 
     .tab-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
+      background: var(--primary) !important;
+      color: white !important;
     }
 
-    main { padding: 14px; max-width: 720px; margin: 0 auto; }
+    .topbar {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: var(--topbar-h);
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .menu-toggle {
+      width: 42px !important;
+      height: 42px;
+      padding: 0 !important;
+      border-radius: 10px !important;
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .menu-toggle:hover { background: #cbd5e1 !important; }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-section {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: #eff6ff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .app-shell {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+    }
+
+    main {
+      padding: 18px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
     section { display: none; }
     section.active { display: block; }
+
+    a.wa-link {
+      color: #128c7e;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    a.wa-link:hover { text-decoration: underline; }
+
+    .install-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .install-banner strong { display: block; margin-bottom: 4px; }
 
     .card {
       background: var(--card);
@@ -120,6 +242,12 @@
       align-items: center;
     }
     .total-box strong { font-size: 24px; }
+    .sale-save-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+    }
 
     button {
       border: none;
@@ -136,8 +264,10 @@
     button.secondary { background: #374151; }
     button.danger { background: var(--danger); }
     button.success { background: var(--success); }
+    button.warning { background: var(--warning); }
 
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .actions-3 { grid-template-columns: 1fr 1fr 1fr; }
 
     .summary {
       font-size: 13px;
@@ -165,23 +295,111 @@
       font-size: 12px;
       font-weight: 700;
     }
+    .pill.warn { background: #fef3c7; color: #92400e; }
+    .pill.ok { background: #dcfce7; color: #166534; }
+
+    .queue-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .admin-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+
+    .filter-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .quick-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .quick-summary-item {
+      padding: 14px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+    .quick-summary-item.warn {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+    .quick-summary-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .quick-summary-value { font-size: 22px; font-weight: 800; }
 
     .small { font-size: 12px; color: var(--muted); }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+
+    /* Mobile: hamburger + drawer */
+    @media (max-width: 860px) {
+      .topbar { display: flex; }
+      .app-shell { margin-left: 0; }
+      .sidebar {
+        transform: translateX(-105%);
+        transition: transform .22s ease;
+        width: min(280px, 86vw);
+      }
+      body.nav-open .sidebar { transform: translateX(0); }
+      body.nav-open { overflow: hidden; }
+      .sidebar-brand {
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 20px;
+        padding-right: 8px;
+      }
+      main { padding: 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .actions-3 { grid-template-columns: 1fr; }
+      .total-box { align-items: stretch; flex-direction: column; }
+      .sale-save-actions { grid-template-columns: 1fr; }
+      .quick-summary { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Controle Troca-Troca ABC</h1>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="openTab('venda')">Venda</button>
-      <button class="tab-btn" onclick="openTab('compra')">Compra</button>
-      <button class="tab-btn" onclick="openTab('historico')">Histórico</button>
-      <button class="tab-btn" onclick="openTab('exportar')">Exportar</button>
-    </div>
-  </header>
+  <div class="sidebar-overlay" onclick="closeNav()" aria-hidden="true"></div>
 
-  <main>
+  <aside class="sidebar" id="sidebar" aria-label="Menu principal">
+    <h1 class="sidebar-brand" id="appTitle">Controle de Figurinhas</h1>
+    <nav class="sidebar-nav">
+      <button class="tab-btn active" data-tab="venda" onclick="openTab('venda')">Venda</button>
+      <button class="tab-btn" data-tab="compra" onclick="openTab('compra')">Compra</button>
+      <button class="tab-btn" data-tab="agenda" onclick="openTab('agenda')">Agenda</button>
+      <button class="tab-btn" data-tab="historico" onclick="openTab('historico')">Histórico</button>
+      <button class="tab-btn" data-tab="exportar" onclick="openTab('exportar')">Exportar</button>
+      <button class="tab-btn" data-tab="admin" onclick="openTab('admin')">Admin</button>
+    </nav>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="menu-toggle" type="button" onclick="toggleNav()" aria-label="Abrir menu">☰</button>
+      <h1 class="topbar-title" id="appTitleMobile">Controle de Figurinhas</h1>
+      <span class="topbar-section" id="currentSectionLabel">Venda</span>
+    </header>
+
+    <main>
     <section id="venda" class="active">
       <div id="saleEditBanner" class="card hidden" style="border-color:#2563eb; background:#eff6ff;">
         <strong>✏️ Editando venda</strong>
@@ -189,9 +407,15 @@
         <button class="secondary" onclick="cancelSaleEdit()">Cancelar edição</button>
       </div>
       <div class="card grid">
-        <div>
-          <label>Nome do comprador (opcional)</label>
-          <input id="saleName" placeholder="Ex.: João" />
+        <div class="grid grid-2">
+          <div>
+            <label>Nome do comprador (opcional)</label>
+            <input id="saleName" placeholder="Ex.: João" />
+          </div>
+          <div>
+            <label>Telefone / WhatsApp (opcional)</label>
+            <input id="salePhone" type="tel" inputmode="tel" placeholder="Ex.: (11) 99999-9999" />
+          </div>
         </div>
         <div>
           <label>Forma de pagamento</label>
@@ -204,32 +428,14 @@
 
       <div class="card">
         <strong>Itens vendidos</strong>
-        <div class="item-row"><div><label>Normais</label><div class="price-hint">R$ 1,00 cada</div></div><input id="qNormais" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>Brasil e/ou perfiladas</label><div class="price-hint">R$ 2,00 cada</div></div><input id="qBrasil" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>Brilhantes</label><div class="price-hint">R$ 2,50 cada</div></div><input id="qBrilhantes" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>FWC 00 até 08</label><div class="price-hint">R$ 10,00 cada</div></div><input id="qFwcAntigas" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>FWC 09 até 19</label><div class="price-hint">R$ 5,00 cada</div></div><input id="qFwcNovas" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>Pacotes</label><div class="price-hint">R$ 6,50 cada / R$ 6,00 acima de 50 un.</div></div><input id="qPacotes" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>Craques</label><div class="price-hint">CR7, Vini Jr, Messi, Mbappé, Haaland e Yamal — R$ 10,00 cada</div></div><input id="qCraques" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>Coca-Cola</label><div class="price-hint">R$ 3,00 cada</div></div><input id="qCoca" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
-        <div class="item-row"><div><label>McDonald's</label><div class="price-hint">R$ 15,00 cada</div></div><input id="qMc" type="number" min="0" inputmode="numeric" placeholder="0" /></div>
+        <div id="saleItemsContainer"></div>
       </div>
 
       <div class="card grid">
         <strong>Legend / Especial</strong>
         <div>
           <label>Legend vendida</label>
-          <select id="legendSelect">
-            <option value="">Nenhuma</option>
-            <option value="Raul Jimenez (Base)|40">Raul Jimenez (Base) - R$ 40</option>
-            <option value="Cody Gakpo (Base)|40">Cody Gakpo (Base) - R$ 40</option>
-            <option value="Alphonso Davies (Base)|40">Alphonso Davies (Base) - R$ 40</option>
-            <option value="CR7 (Base)|100">CR7 (Base) - R$ 100</option>
-            <option value="Jude Bellingham (Bronze)|60">Jude Bellingham (Bronze) - R$ 60</option>
-            <option value="Cody Gakpo (Bronze)|60">Cody Gakpo (Bronze) - R$ 60</option>
-            <option value="Achraf Hakimi (Ouro)|250">Achraf Hakimi (Ouro) - R$ 250</option>
-            <option value="custom">Outra / consultar</option>
-          </select>
+          <select id="legendSelect"></select>
         </div>
         <div id="customLegendBox" class="hidden grid grid-2">
           <div><label>Nome da legend</label><input id="customLegendName" placeholder="Ex.: Jogador (Prata)" /></div>
@@ -244,7 +450,7 @@
         </div>
         <div>
           <label>Observação</label>
-          <input id="saleObs" value="Troca-Troca ABC" />
+          <input id="saleObs" />
         </div>
         <div>
           <label>Descrição automática</label>
@@ -275,7 +481,10 @@
           <div class="small">Total da venda</div>
           <strong id="saleTotal">R$ 0,00</strong>
         </div>
-        <button id="saleSaveButton" class="success" onclick="saveSale()">Salvar venda</button>
+        <div class="sale-save-actions">
+          <button id="saleDraftButton" class="warning" onclick="saveSale(true)">Salvar rascunho</button>
+          <button id="saleSaveButton" class="success" onclick="saveSale(false)">Confirmar venda</button>
+        </div>
       </div>
     </section>
 
@@ -300,7 +509,7 @@
         </div>
         <div>
           <label>Obs.</label>
-          <input id="buyObs" value="Troca-Troca ABC" />
+          <input id="buyObs" />
         </div>
         <div class="grid grid-2">
           <div><label>Data</label><input id="buyData" placeholder="automático" /></div>
@@ -310,55 +519,245 @@
       </div>
     </section>
 
+    <section id="agenda">
+      <div id="agendaEditBanner" class="card hidden" style="border-color:#2563eb; background:#eff6ff;">
+        <strong>✏️ Editando contato na agenda</strong>
+        <button class="secondary" onclick="cancelAgendaEdit()">Cancelar edição</button>
+      </div>
+      <div class="card grid">
+        <strong>Novo contato / lista de espera</strong>
+        <p class="small">Cadastre a pessoa para contato. A fila aparece por ordem de chegada (mais antigo primeiro).</p>
+        <div>
+          <label>Nome *</label>
+          <input id="agendaName" placeholder="Ex.: Maria" />
+        </div>
+        <div>
+          <label>Telefone</label>
+          <input id="agendaPhone" type="tel" inputmode="tel" placeholder="Ex.: (11) 99999-9999" />
+        </div>
+        <div class="grid grid-2">
+          <div>
+            <label>Data e horário de contato</label>
+            <input id="agendaContact" type="datetime-local" />
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="agendaStatus">
+              <option value="pendente">Pendente</option>
+              <option value="contactado">Contactado</option>
+              <option value="entregue">Entregue</option>
+            </select>
+          </div>
+        </div>
+        <button id="agendaSaveButton" class="success" onclick="saveAgenda()">Adicionar à agenda</button>
+      </div>
+      <div class="card grid">
+        <strong>Fila de espera</strong>
+        <div class="grid grid-2">
+          <div>
+            <label>Buscar na agenda</label>
+            <input id="agendaSearch" type="search" placeholder="Nome ou telefone..." oninput="renderAgenda()" />
+          </div>
+          <div>
+            <label>Ordenar por</label>
+            <select id="agendaSort" onchange="renderAgenda()">
+              <option value="arrival">Ordem de chegada</option>
+              <option value="contact">Data de contato</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button onclick="renderAgenda()">Atualizar fila</button>
+          <button id="agendaFilterBtn" class="secondary" onclick="filterAgendaPending()">Só pendentes</button>
+        </div>
+        <p class="small"><span class="pill" id="countAgenda">0 na fila</span></p>
+        <div id="agendaList"></div>
+      </div>
+    </section>
+
     <section id="historico">
       <div class="card">
+        <strong>Resumo rápido</strong>
+        <div class="quick-summary" style="margin-top:10px">
+          <div class="quick-summary-item">
+            <div class="quick-summary-label">Vendido neste mês</div>
+            <div class="quick-summary-value" id="monthSalesTotal">R$ 0,00</div>
+          </div>
+          <div class="quick-summary-item warn">
+            <div class="quick-summary-label">Rascunhos abertos</div>
+            <div class="quick-summary-value" id="openDraftsTotal">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="card filter-box grid">
+        <strong>Filtro por data</strong>
+        <p class="small">Filtra vendas e compras no histórico. O mesmo filtro vale para exportar CSV.</p>
+        <div class="grid grid-2">
+          <div><label>De</label><input type="date" id="filterDateStart" onchange="syncDateFilters(); renderHistory()" /></div>
+          <div><label>Até</label><input type="date" id="filterDateEnd" onchange="syncDateFilters(); renderHistory()" /></div>
+        </div>
+        <button class="secondary" onclick="clearDateFilter()">Limpar filtro</button>
+        <p class="small" id="filterStatus">Mostrando todos os registros.</p>
+      </div>
+      <div class="card">
         <div class="actions">
-          <button onclick="renderHistory()">Atualizar</button>
+          <button id="draftFilterBtn" onclick="toggleDraftFilter()">Só rascunhos</button>
           <button class="danger" onclick="clearAll()">Limpar tudo</button>
         </div>
       </div>
       <div class="card">
-        <div><span class="pill" id="countSales">0 vendas</span> <span class="pill" id="countBuys">0 compras</span></div>
-        <p><strong>Saldo:</strong> <span id="balance">R$ 0,00</span></p>
+        <div><span class="pill" id="countSales">0 vendas</span> <span class="pill warn" id="countDrafts">0 rascunhos</span> <span class="pill" id="countBuys">0 compras</span></div>
+        <p><strong>Saldo (período):</strong> <span id="balance">R$ 0,00</span></p>
         <div id="historyList"></div>
       </div>
     </section>
 
     <section id="exportar">
+      <div id="installBanner" class="install-banner">
+        <strong>📱 Instalar no celular (PWA)</strong>
+        <div id="installInstructions">
+          <p class="small" style="margin:0">Para funcionar como app, abra este site por um servidor (HTTPS ou localhost), não pelo arquivo local.</p>
+        </div>
+        <button id="installBtn" class="hidden" style="margin-top:10px" onclick="promptInstall()">Instalar app</button>
+      </div>
+      <div class="card filter-box grid">
+        <strong>Filtro por data (exportação)</strong>
+        <p class="small">Exporta somente os registros dentro do período. Deixe em branco para exportar tudo.</p>
+        <div class="grid grid-2">
+          <div><label>De</label><input type="date" id="exportFilterDateStart" onchange="syncDateFilters(true)" /></div>
+          <div><label>Até</label><input type="date" id="exportFilterDateEnd" onchange="syncDateFilters(true)" /></div>
+        </div>
+        <button class="secondary" onclick="clearDateFilter()">Limpar filtro</button>
+        <p class="small" id="exportFilterStatus">Nenhum filtro — exportará todos os registros.</p>
+      </div>
       <div class="card grid">
-        <p>Use os botões abaixo para baixar os arquivos CSV e depois importar/colar na sua planilha financeira.</p>
-        <button onclick="exportCSV('sales')">Exportar vendas CSV</button>
-        <button onclick="exportCSV('buys')">Exportar compras CSV</button>
+        <p>Baixe CSV filtrado ou faça backup completo em JSON (inclui agenda e configurações).</p>
+        <button onclick="exportCSV('sales')">Exportar vendas CSV (filtrado)</button>
+        <button onclick="exportCSV('buys')">Exportar compras CSV (filtrado)</button>
         <button onclick="exportBackup()" class="secondary">Baixar backup JSON</button>
         <label>Restaurar backup JSON</label>
         <input type="file" id="restoreFile" accept="application/json" />
         <button onclick="restoreBackup()" class="secondary">Restaurar backup</button>
       </div>
     </section>
+
+    <section id="admin">
+      <div class="card grid">
+        <strong>Configurações gerais</strong>
+        <div>
+          <label>Título do app</label>
+          <input id="adminAppTitle" placeholder="Controle de Figurinhas" />
+        </div>
+        <div>
+          <label>Observação padrão (ex.: Troca-Troca ABC)</label>
+          <input id="adminDefaultObs" placeholder="Troca-Troca ABC" />
+        </div>
+      </div>
+      <div class="card">
+        <strong>Tipos de figurinha (venda)</strong>
+        <p class="small">Edite nome, valor unitário e descrição exibida na tela de venda.</p>
+        <div id="adminItemsList"></div>
+      </div>
+      <div class="card grid">
+        <strong>Pacotes</strong>
+        <div id="adminPacotesBox"></div>
+      </div>
+      <div class="card">
+        <strong>Legends / especiais</strong>
+        <div id="adminLegendsList"></div>
+        <button class="secondary" onclick="addAdminLegend()" style="margin-top:10px">+ Adicionar legend</button>
+      </div>
+      <div class="card actions">
+        <button class="success" onclick="saveAdminConfig()">Salvar configurações</button>
+        <button class="secondary" onclick="resetAdminConfig()">Restaurar padrões</button>
+      </div>
+    </section>
   </main>
+  </div>
 
   <script>
     const STORAGE_KEY = 'controle_troca_troca_abc_v1';
+    const DEFAULT_OBS = 'Troca-Troca ABC';
+
+    const DEFAULT_CONFIG = {
+      appTitle: 'Controle de Figurinhas',
+      defaultObs: DEFAULT_OBS,
+      items: [
+        { id: 'qNormais', name: 'Normais', price: 1, desc: 'R$ 1,00 cada' },
+        { id: 'qBrasil', name: 'Brasil e/ou perfiladas', price: 2, desc: 'R$ 2,00 cada' },
+        { id: 'qBrilhantes', name: 'Brilhantes', price: 2.5, desc: 'R$ 2,50 cada' },
+        { id: 'qFwcAntigas', name: 'FWC 00 até 08', price: 10, desc: 'R$ 10,00 cada' },
+        { id: 'qFwcNovas', name: 'FWC 09 até 19', price: 5, desc: 'R$ 5,00 cada' },
+        { id: 'qCraques', name: 'Craques', price: 10, desc: 'CR7, Vini Jr, Messi, Mbappé, Haaland e Yamal — R$ 10,00 cada' },
+        { id: 'qCoca', name: 'Coca-Cola', price: 3, desc: 'R$ 3,00 cada' },
+        { id: 'qMc', name: "McDonald's", price: 15, desc: 'R$ 15,00 cada' }
+      ],
+      pacotes: {
+        id: 'qPacotes',
+        name: 'Pacotes',
+        priceBelow: 6.5,
+        priceAbove: 6,
+        threshold: 50,
+        desc: 'R$ 6,50 cada / R$ 6,00 acima de 50 un.'
+      },
+      legends: [
+        { name: 'Raul Jimenez (Base)', price: 40 },
+        { name: 'Cody Gakpo (Base)', price: 40 },
+        { name: 'Alphonso Davies (Base)', price: 40 },
+        { name: 'CR7 (Base)', price: 100 },
+        { name: 'Jude Bellingham (Bronze)', price: 60 },
+        { name: 'Cody Gakpo (Bronze)', price: 60 },
+        { name: 'Achraf Hakimi (Ouro)', price: 250 }
+      ]
+    };
+
     let editingSaleIndex = null;
     let editingBuyIndex = null;
+    let editingAgendaIndex = null;
+    let agendaShowPendingOnly = false;
+    let historyDraftOnly = false;
 
-    const itemMap = [
-      ['qNormais', 'Normais', 1],
-      ['qBrasil', 'Brasil e/ou perfiladas', 2],
-      ['qBrilhantes', 'Brilhantes', 2.5],
-      ['qFwcAntigas', 'FWC 00 até 08', 10],
-      ['qFwcNovas', 'FWC 09 até 19', 5],
-      ['qCraques', 'Craques', 10],
-      ['qCoca', 'Coca-Cola', 3],
-      ['qMc', "McDonald's", 15]
-    ];
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function mergeConfig(saved) {
+      const base = deepClone(DEFAULT_CONFIG);
+      if (!saved) return base;
+      if (saved.appTitle) base.appTitle = saved.appTitle;
+      if (saved.defaultObs) base.defaultObs = saved.defaultObs;
+      if (saved.pacotes) base.pacotes = { ...base.pacotes, ...saved.pacotes };
+      if (Array.isArray(saved.items)) {
+        const byId = Object.fromEntries(saved.items.map(i => [i.id, i]));
+        base.items = base.items.map(item => ({ ...item, ...(byId[item.id] || {}) }));
+        saved.items.forEach(item => {
+          if (!base.items.find(x => x.id === item.id)) base.items.push(item);
+        });
+      }
+      if (Array.isArray(saved.legends)) base.legends = saved.legends;
+      return base;
+    }
 
     function getData() {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"sales":[],"buys":[]}');
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return {
+        sales: raw.sales || [],
+        buys: raw.buys || [],
+        agenda: raw.agenda || [],
+        config: mergeConfig(raw.config)
+      };
     }
 
     function setData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getConfig() {
+      return getData().config;
+    }
+
+    function getItemMap() {
+      return getConfig().items.map(i => [i.id, i.name, Number(i.price)]);
     }
 
     function nowBR() {
@@ -374,33 +773,168 @@
     }
 
     function num(id) {
-      return Number(String(document.getElementById(id).value || '0').replace(',', '.')) || 0;
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      return Number(String(el.value || '0').replace(',', '.')) || 0;
     }
 
     function setVal(id, value) {
-      document.getElementById(id).value = value ?? '';
+      const el = document.getElementById(id);
+      if (el) el.value = value ?? '';
+    }
+
+    function parseBRDate(str) {
+      if (!str) return null;
+      const m = String(str).match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (!m) return null;
+      return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    }
+
+    function getDateFilterValues() {
+      const start = document.getElementById('filterDateStart')?.value || document.getElementById('exportFilterDateStart')?.value || '';
+      const end = document.getElementById('filterDateEnd')?.value || document.getElementById('exportFilterDateEnd')?.value || '';
+      return { start, end };
+    }
+
+    function syncDateFilters(fromExport) {
+      const start = fromExport ? document.getElementById('exportFilterDateStart').value : document.getElementById('filterDateStart').value;
+      const end = fromExport ? document.getElementById('exportFilterDateEnd').value : document.getElementById('filterDateEnd').value;
+      setVal('filterDateStart', start);
+      setVal('filterDateEnd', end);
+      setVal('exportFilterDateStart', start);
+      setVal('exportFilterDateEnd', end);
+      updateFilterStatus();
+    }
+
+    function clearDateFilter() {
+      ['filterDateStart', 'filterDateEnd', 'exportFilterDateStart', 'exportFilterDateEnd'].forEach(id => setVal(id, ''));
+      updateFilterStatus();
+      renderHistory();
+    }
+
+    function updateFilterStatus() {
+      const { start, end } = getDateFilterValues();
+      let msg = 'Mostrando todos os registros.';
+      if (start || end) {
+        const de = start ? formatDateBR(start) : 'início';
+        const ate = end ? formatDateBR(end) : 'hoje';
+        msg = `Filtrando de ${de} até ${ate}.`;
+      }
+      const el1 = document.getElementById('filterStatus');
+      const el2 = document.getElementById('exportFilterStatus');
+      if (el1) el1.textContent = msg;
+      if (el2) el2.textContent = start || end ? `Exportação: ${msg}` : 'Nenhum filtro — exportará todos os registros.';
+    }
+
+    function formatDateBR(isoDate) {
+      const [y, m, d] = isoDate.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function matchesDateFilter(recordDate, start, end) {
+      const d = parseBRDate(recordDate);
+      if (!d) return !start && !end;
+      if (start) {
+        const s = new Date(start + 'T00:00:00');
+        if (d < s) return false;
+      }
+      if (end) {
+        const e = new Date(end + 'T23:59:59');
+        if (d > e) return false;
+      }
+      return true;
+    }
+
+    function filterRecords(records, dateField) {
+      const { start, end } = getDateFilterValues();
+      if (!start && !end) return records;
+      return records.filter(r => matchesDateFilter(r[dateField], start, end));
     }
 
     function openTab(tab) {
       document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tab).classList.add('active');
-      const btns = document.querySelectorAll('.tab-btn');
-      const map = { venda: 0, compra: 1, historico: 2, exportar: 3 };
-      if (btns[map[tab]]) btns[map[tab]].classList.add('active');
+      document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+
+      const labels = {
+        venda: 'Venda', compra: 'Compra', agenda: 'Agenda',
+        historico: 'Histórico', exportar: 'Exportar', admin: 'Admin'
+      };
+      const labelEl = document.getElementById('currentSectionLabel');
+      if (labelEl) labelEl.textContent = labels[tab] || tab;
+
+      closeNav();
+
       if (tab === 'historico') renderHistory();
+      if (tab === 'agenda') renderAgenda();
+      if (tab === 'admin') renderAdmin();
+      if (tab === 'exportar') {
+        updateFilterStatus();
+        updateInstallInstructions();
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function toggleNav() {
+      document.body.classList.toggle('nav-open');
+    }
+
+    function closeNav() {
+      document.body.classList.remove('nav-open');
+    }
+
+    function renderSaleForm() {
+      const config = getConfig();
+      document.getElementById('appTitle').textContent = config.appTitle;
+      const mobileTitle = document.getElementById('appTitleMobile');
+      if (mobileTitle) mobileTitle.textContent = config.appTitle;
+      document.title = config.appTitle;
+      if (!document.getElementById('saleObs').value || document.getElementById('saleObs').value === DEFAULT_OBS) {
+        setVal('saleObs', config.defaultObs);
+      }
+      if (!document.getElementById('buyObs').value || document.getElementById('buyObs').value === DEFAULT_OBS) {
+        setVal('buyObs', config.defaultObs);
+      }
+
+      const container = document.getElementById('saleItemsContainer');
+      const pacotes = config.pacotes;
+      let html = config.items.map(item => `
+        <div class="item-row">
+          <div><label>${escapeHtml(item.name)}</label><div class="price-hint">${escapeHtml(item.desc || money(item.price) + ' cada')}</div></div>
+          <input id="${item.id}" type="number" min="0" inputmode="numeric" placeholder="0" />
+        </div>`).join('');
+      html += `
+        <div class="item-row">
+          <div><label>${escapeHtml(pacotes.name)}</label><div class="price-hint">${escapeHtml(pacotes.desc || '')}</div></div>
+          <input id="${pacotes.id}" type="number" min="0" inputmode="numeric" placeholder="0" />
+        </div>`;
+      container.innerHTML = html;
+
+      const legendSelect = document.getElementById('legendSelect');
+      legendSelect.innerHTML = '<option value="">Nenhuma</option>' +
+        config.legends.map(l => `<option value="${escapeHtml(l.name)}|${l.price}">${escapeHtml(l.name)} - ${money(l.price)}</option>`).join('') +
+        '<option value="custom">Outra / consultar</option>';
+
+      container.querySelectorAll('input').forEach(el => el.addEventListener('input', calculateSale));
+      legendSelect.onchange = () => {
+        document.getElementById('customLegendBox').classList.toggle('hidden', legendSelect.value !== 'custom');
+        calculateSale();
+      };
+      calculateSale();
+    }
+
     function calculateSale() {
+      const config = getConfig();
       let total = 0;
       let desc = [];
       let quantities = {};
-      let pacotesQty = num('qPacotes');
-      let pacotesUnit = pacotesQty >= 50 ? 6 : 6.5;
+      const pacotesCfg = config.pacotes;
+      let pacotesQty = num(pacotesCfg.id);
+      let pacotesUnit = pacotesQty >= Number(pacotesCfg.threshold) ? Number(pacotesCfg.priceAbove) : Number(pacotesCfg.priceBelow);
       let pacotesTotal = pacotesQty * pacotesUnit;
 
-      itemMap.forEach(([id, name, price]) => {
+      getItemMap().forEach(([id, name, price]) => {
         const q = num(id);
         quantities[id] = q;
         if (q > 0) {
@@ -409,10 +943,10 @@
         }
       });
 
-      quantities.qPacotes = pacotesQty;
+      quantities[pacotesCfg.id] = pacotesQty;
       if (pacotesQty > 0) {
         total += pacotesTotal;
-        desc.push(`${pacotesQty}x Pacotes (${money(pacotesUnit)} cada)`);
+        desc.push(`${pacotesQty}x ${pacotesCfg.name} (${money(pacotesUnit)} cada)`);
       }
 
       const legendValue = document.getElementById('legendSelect').value;
@@ -445,9 +979,7 @@
 
       return {
         total: shownTotal,
-        calculatedTotal: total,
         desc: manualDesc || desc.join('; '),
-        autoDesc: desc.join('; '),
         pacotesQty,
         pacotesValue: pacotesTotal,
         discount,
@@ -460,21 +992,26 @@
       };
     }
 
-    function saveSale() {
+    function saveSale(asDraft = false) {
       const calc = calculateSale();
       if (calc.total <= 0) return alert('Informe pelo menos um item vendido ou um valor manual.');
-
+      const config = getConfig();
       const date = nowBR();
+      const data = getData();
+      const previousSale = editingSaleIndex !== null ? data.sales[editingSaleIndex] : null;
+      const confirmingDraft = !asDraft && previousSale?.status === 'rascunho';
       const sale = {
         tipo: 'venda',
-        data: document.getElementById('saleData').value.trim() || date,
+        status: asDraft ? 'rascunho' : 'confirmada',
+        data: confirmingDraft ? date : (document.getElementById('saleData').value.trim() || date),
         nome: document.getElementById('saleName').value.trim(),
+        telefone: document.getElementById('salePhone').value.trim(),
         descricao: calc.desc,
         valor: calc.total,
         formaPagamento: document.getElementById('salePayment').value,
-        pagoDia: document.getElementById('salePagoDia').value.trim() || date,
-        entregueDia: document.getElementById('saleEntregueDia').value.trim() || date,
-        obs: document.getElementById('saleObs').value.trim() || 'Troca-Troca ABC',
+        pagoDia: asDraft ? document.getElementById('salePagoDia').value.trim() : (document.getElementById('salePagoDia').value.trim() || date),
+        entregueDia: asDraft ? document.getElementById('saleEntregueDia').value.trim() : (document.getElementById('saleEntregueDia').value.trim() || date),
+        obs: document.getElementById('saleObs').value.trim() || config.defaultObs,
         pacotes: num('salePacotesManual') || calc.pacotesQty,
         valorPacotes: num('saleValorPacotesManual') || calc.pacotesValue,
         desconto: calc.discount,
@@ -486,29 +1023,39 @@
         manualDescription: calc.manualDesc
       };
 
-      const data = getData();
       if (editingSaleIndex !== null) {
         data.sales[editingSaleIndex] = sale;
         setData(data);
         resetSale();
-        alert('Venda atualizada!');
+        alert(
+          asDraft
+            ? 'Rascunho atualizado!'
+            : confirmingDraft
+              ? `Venda confirmada! A data foi atualizada para ${date}.`
+              : 'Venda atualizada!'
+        );
       } else {
         data.sales.unshift(sale);
         setData(data);
         resetSale();
-        alert('Venda salva!');
+        alert(asDraft ? 'Rascunho salvo!' : 'Venda confirmada!');
       }
     }
 
     function resetSale() {
-      ['saleName','qNormais','qBrasil','qBrilhantes','qFwcAntigas','qFwcNovas','qPacotes','qCraques','qCoca','qMc','saleDiscount','customLegendName','customLegendPrice','saleData','salePagoDia','saleEntregueDia','saleManualTotal','salePacotesManual','saleValorPacotesManual','saleManualDescription'].forEach(id => document.getElementById(id).value = '');
+      const config = getConfig();
+      const ids = ['saleName', 'salePhone', 'saleDiscount', 'customLegendName', 'customLegendPrice', 'saleData', 'salePagoDia', 'saleEntregueDia', 'saleManualTotal', 'salePacotesManual', 'saleValorPacotesManual', 'saleManualDescription'];
+      ids.forEach(id => setVal(id, ''));
+      config.items.forEach(i => setVal(i.id, ''));
+      setVal(config.pacotes.id, '');
       document.getElementById('salePayment').value = 'Pix Nubank';
-      document.getElementById('saleObs').value = 'Troca-Troca ABC';
+      setVal('saleObs', config.defaultObs);
       document.getElementById('legendSelect').value = '';
       document.getElementById('customLegendBox').classList.add('hidden');
       editingSaleIndex = null;
       document.getElementById('saleEditBanner').classList.add('hidden');
-      document.getElementById('saleSaveButton').textContent = 'Salvar venda';
+      document.getElementById('saleSaveButton').textContent = 'Confirmar venda';
+      document.getElementById('saleDraftButton').textContent = 'Salvar rascunho';
       calculateSale();
     }
 
@@ -516,6 +1063,7 @@
       const value = num('buyValue');
       const desc = document.getElementById('buyDescription').value.trim();
       if (!desc || value <= 0) return alert('Informe a descrição e o valor da compra.');
+      const config = getConfig();
       const date = nowBR();
       const buy = {
         tipo: 'compra',
@@ -525,7 +1073,7 @@
         valor: value,
         formaPagamento: document.getElementById('buyPayment').value,
         recebimento: document.getElementById('buyRecebimento').value.trim() || date,
-        obs: document.getElementById('buyObs').value.trim() || 'Troca-Troca ABC'
+        obs: document.getElementById('buyObs').value.trim() || config.defaultObs
       };
       const data = getData();
       if (editingBuyIndex !== null) {
@@ -542,11 +1090,12 @@
     }
 
     function resetBuy() {
+      const config = getConfig();
       document.getElementById('buyDescription').value = '';
       document.getElementById('buyLocal').value = '';
       document.getElementById('buyValue').value = '';
       document.getElementById('buyPayment').value = 'Pix Nubank';
-      document.getElementById('buyObs').value = 'Troca-Troca ABC';
+      setVal('buyObs', config.defaultObs);
       document.getElementById('buyData').value = '';
       document.getElementById('buyRecebimento').value = '';
       editingBuyIndex = null;
@@ -554,36 +1103,311 @@
       document.getElementById('buySaveButton').textContent = 'Salvar compra/saída';
     }
 
-    function renderHistory() {
-      const data = getData();
-      const list = document.getElementById('historyList');
-      const salesTotal = data.sales.reduce((s, x) => s + Number(x.valor), 0);
-      const buysTotal = data.buys.reduce((s, x) => s + Number(x.valor), 0);
-      document.getElementById('countSales').textContent = `${data.sales.length} vendas`;
-      document.getElementById('countBuys').textContent = `${data.buys.length} compras`;
-      document.getElementById('balance').textContent = money(salesTotal - buysTotal);
+    function datetimeLocalToBR(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (isNaN(d)) return value;
+      return new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      }).format(d);
+    }
 
-      const all = [
-        ...data.sales.map((r, index) => ({ ...r, collection: 'sales', index })),
-        ...data.buys.map((r, index) => ({ ...r, collection: 'buys', index }))
-      ];
-      if (!all.length) {
-        list.innerHTML = '<p class="small">Nenhum lançamento ainda.</p>';
+    function brToDatetimeLocal(str) {
+      if (!str) return '';
+      const m = String(str).match(/(\d{2})\/(\d{2})\/(\d{4})(?:,\s*(\d{2}):(\d{2}))?/);
+      if (!m) return '';
+      const [, dd, mm, yyyy, hh = '00', min = '00'] = m;
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    }
+
+    function saveAgenda() {
+      const name = document.getElementById('agendaName').value.trim();
+      if (!name) return alert('Informe o nome.');
+
+      const entry = {
+        nome: name,
+        telefone: document.getElementById('agendaPhone').value.trim(),
+        contato: datetimeLocalToBR(document.getElementById('agendaContact').value),
+        status: document.getElementById('agendaStatus').value,
+        cadastro: nowBR()
+      };
+
+      const data = getData();
+      if (editingAgendaIndex !== null) {
+        entry.cadastro = data.agenda[editingAgendaIndex].cadastro;
+        data.agenda[editingAgendaIndex] = entry;
+        setData(data);
+        resetAgendaForm();
+        alert('Contato atualizado!');
+      } else {
+        data.agenda.unshift(entry);
+        setData(data);
+        resetAgendaForm();
+        alert('Adicionado à agenda!');
+      }
+      renderAgenda();
+    }
+
+    function resetAgendaForm() {
+      ['agendaName', 'agendaPhone', 'agendaContact'].forEach(id => setVal(id, ''));
+      document.getElementById('agendaStatus').value = 'pendente';
+      editingAgendaIndex = null;
+      document.getElementById('agendaEditBanner').classList.add('hidden');
+      document.getElementById('agendaSaveButton').textContent = 'Adicionar à agenda';
+    }
+
+    function cancelAgendaEdit() { resetAgendaForm(); }
+
+    function filterAgendaPending() {
+      agendaShowPendingOnly = !agendaShowPendingOnly;
+      const btn = document.getElementById('agendaFilterBtn');
+      if (btn) btn.textContent = agendaShowPendingOnly ? 'Mostrar todos' : 'Só pendentes';
+      renderAgenda();
+    }
+
+    function agendaSortKey(entry) {
+      return parseBRDate(entry.cadastro)?.getTime() || 0;
+    }
+
+    function agendaContactSortKey(entry) {
+      const localValue = brToDatetimeLocal(entry.contato);
+      if (!localValue) return Number.MAX_SAFE_INTEGER;
+      const time = new Date(localValue).getTime();
+      return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+    }
+
+    function statusLabel(status) {
+      return { pendente: 'Pendente', contactado: 'Contactado', entregue: 'Entregue' }[status] || status;
+    }
+
+    function statusClass(status) {
+      return status === 'entregue' ? 'ok' : status === 'contactado' ? 'warn' : '';
+    }
+
+    function toWhatsAppNumber(phone) {
+      let digits = String(phone || '').replace(/\D/g, '');
+      if (!digits) return '';
+      if (digits.length === 10 || digits.length === 11) digits = '55' + digits;
+      return digits;
+    }
+
+    function whatsappHref(phone, name) {
+      const number = toWhatsAppNumber(phone);
+      if (!number) return '';
+      const msg = `Olá${name ? ' ' + name : ''}! Tudo bem? Estou entrando em contato sobre as figurinhas.`;
+      return `https://wa.me/${number}?text=${encodeURIComponent(msg.trim())}`;
+    }
+
+    function renderAgenda() {
+      const data = getData();
+      const search = (document.getElementById('agendaSearch')?.value || '').trim().toLowerCase();
+      const sortMode = document.getElementById('agendaSort')?.value || 'arrival';
+      let list = data.agenda.map((entry, index) => ({ entry, index }))
+        .sort((a, b) => {
+          if (sortMode === 'contact') {
+            const byContact = agendaContactSortKey(a.entry) - agendaContactSortKey(b.entry);
+            if (byContact !== 0) return byContact;
+          }
+          return agendaSortKey(a.entry) - agendaSortKey(b.entry);
+        });
+      if (agendaShowPendingOnly) list = list.filter(x => x.entry.status === 'pendente');
+      if (search) {
+        list = list.filter(({ entry }) => {
+          const hay = [entry.nome, entry.telefone, entry.contato, entry.status]
+            .join(' ').toLowerCase();
+          return hay.includes(search);
+        });
+      }
+
+      const suffix = [
+        agendaShowPendingOnly ? 'pendentes' : '',
+        search ? 'busca' : '',
+        sortMode === 'contact' ? 'por contato' : ''
+      ].filter(Boolean).join(', ');
+      document.getElementById('countAgenda').textContent = `${list.length} na fila${suffix ? ' (' + suffix + ')' : ''}`;
+      const container = document.getElementById('agendaList');
+
+      if (!list.length) {
+        container.innerHTML = '<p class="small">Nenhum contato na agenda' + (search ? ' para essa busca' : '') + '.</p>';
         return;
       }
+
+      container.innerHTML = list.map(({ entry, index: originalIndex }, queuePos) => {
+        const wa = whatsappHref(entry.telefone, entry.nome);
+        const phoneLink = wa
+          ? `<a class="wa-link" href="${escapeAttr(wa)}" target="_blank" rel="noopener">WhatsApp ${escapeHtml(entry.telefone)}</a>`
+          : (entry.telefone ? escapeHtml(entry.telefone) : '—');
+        return `
+        <div class="record">
+          <div class="record-title">
+            <span class="queue-num">${queuePos + 1}</span>
+            ${escapeHtml(entry.nome)}
+            <span class="pill ${statusClass(entry.status)}">${statusLabel(entry.status)}</span>
+          </div>
+          <div class="record-meta">
+            ${phoneLink}<br>
+            Contato: ${escapeHtml(entry.contato || 'não definido')}<br>
+            Chegou em: ${escapeHtml(entry.cadastro || '')}
+          </div>
+          <div class="record-actions actions-3">
+            <button class="success" onclick="convertAgendaToSale(${originalIndex})">🛒 → Venda</button>
+            <button class="warning" onclick="setAgendaStatus(${originalIndex}, 'contactado')">Contactado</button>
+            <button class="secondary" onclick="editAgenda(${originalIndex})">✏️ Editar</button>
+          </div>
+          <div class="record-actions" style="margin-top:8px">
+            <button class="success" onclick="setAgendaStatus(${originalIndex}, 'entregue')">✅ Entregue</button>
+            <button class="danger" onclick="deleteAgenda(${originalIndex})">🗑️ Excluir</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function convertAgendaToSale(index) {
+      const data = getData();
+      const entry = data.agenda[index];
+      if (!entry) return alert('Contato não encontrado.');
+
+      resetSale();
+      setVal('saleName', entry.nome || '');
+      setVal('salePhone', entry.telefone || '');
+      setVal('saleObs', getConfig().defaultObs);
+      calculateSale();
+      openTab('venda');
+
+      if (entry.status === 'pendente') {
+        data.agenda[index].status = 'contactado';
+        setData(data);
+      }
+
+      alert('Contato copiado para a venda.\n\nNome e telefone preenchidos. Calcule os itens e salve como rascunho ou confirme a venda.');
+    }
+
+    function editAgenda(index) {
+      const data = getData();
+      const entry = data.agenda[index];
+      if (!entry) return;
+      editingAgendaIndex = index;
+      setVal('agendaName', entry.nome);
+      setVal('agendaPhone', entry.telefone);
+      setVal('agendaContact', brToDatetimeLocal(entry.contato));
+      document.getElementById('agendaStatus').value = entry.status || 'pendente';
+      document.getElementById('agendaEditBanner').classList.remove('hidden');
+      document.getElementById('agendaSaveButton').textContent = 'Atualizar contato';
+      openTab('agenda');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setAgendaStatus(index, status) {
+      const data = getData();
+      if (!data.agenda[index]) return;
+      data.agenda[index].status = status;
+      setData(data);
+      renderAgenda();
+    }
+
+    function deleteAgenda(index) {
+      const data = getData();
+      const entry = data.agenda[index];
+      if (!entry) return;
+      if (!confirm(`Excluir contato de ${entry.nome}?`)) return;
+      data.agenda.splice(index, 1);
+      setData(data);
+      renderAgenda();
+    }
+
+    function toggleDraftFilter() {
+      historyDraftOnly = !historyDraftOnly;
+      const btn = document.getElementById('draftFilterBtn');
+      if (btn) {
+        btn.textContent = historyDraftOnly ? 'Mostrar todos' : 'Só rascunhos';
+        btn.classList.toggle('secondary', historyDraftOnly);
+      }
+      renderHistory();
+    }
+
+    function openDraftWhatsApp(index) {
+      const draft = getData().sales[index];
+      if (!draft || draft.status !== 'rascunho' || !draft.telefone) {
+        return alert('Este rascunho não possui telefone/WhatsApp.');
+      }
+      const number = toWhatsAppNumber(draft.telefone);
+      const message = [
+        `Olá${draft.nome ? ' ' + draft.nome : ''}!`,
+        'Segue o orçamento das figurinhas:',
+        draft.descricao || '',
+        `Total: ${money(draft.valor)}`,
+        'Se estiver de acordo, me avise para eu confirmar e separar.'
+      ].filter(Boolean).join('\n');
+      window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+    }
+
+    function renderQuickSummary(data) {
+      const now = new Date();
+      const monthTotal = data.sales
+        .filter(s => s.status !== 'rascunho')
+        .filter(s => {
+          const date = parseBRDate(s.data);
+          return date && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        })
+        .reduce((sum, sale) => sum + Number(sale.valor || 0), 0);
+      const openDrafts = data.sales.filter(s => s.status === 'rascunho').length;
+      document.getElementById('monthSalesTotal').textContent = money(monthTotal);
+      document.getElementById('openDraftsTotal').textContent = openDrafts;
+    }
+
+    function renderHistory() {
+      updateFilterStatus();
+      const data = getData();
+      renderQuickSummary(data);
+      const filteredSales = filterRecords(data.sales, 'data');
+      const confirmedSales = filteredSales.filter(s => s.status !== 'rascunho');
+      const draftSales = filteredSales.filter(s => s.status === 'rascunho');
+      const filteredBuys = filterRecords(data.buys, 'data');
+      const salesTotal = confirmedSales.reduce((s, x) => s + Number(x.valor), 0);
+      const buysTotal = filteredBuys.reduce((s, x) => s + Number(x.valor), 0);
+      document.getElementById('countSales').textContent = `${confirmedSales.length} vendas`;
+      document.getElementById('countDrafts').textContent = `${draftSales.length} rascunhos`;
+      document.getElementById('countBuys').textContent = `${filteredBuys.length} compras`;
+      document.getElementById('balance').textContent = money(salesTotal - buysTotal);
+
+      const list = document.getElementById('historyList');
+      const displayedSales = historyDraftOnly ? draftSales : filteredSales;
+      const displayedBuys = historyDraftOnly ? [] : filteredBuys;
+      const all = [
+        ...displayedSales.map((r) => ({ ...r, collection: 'sales', index: data.sales.indexOf(r) })),
+        ...displayedBuys.map((r) => ({ ...r, collection: 'buys', index: data.buys.indexOf(r) }))
+      ].sort((a, b) => (parseBRDate(b.data)?.getTime() || 0) - (parseBRDate(a.data)?.getTime() || 0));
+
+      if (!all.length) {
+        list.innerHTML = `<p class="small">${
+          historyDraftOnly ? 'Nenhum rascunho no período selecionado.' : 'Nenhum lançamento no período selecionado.'
+        }</p>`;
+        return;
+      }
+
       list.innerHTML = all.map(r => `
         <div class="record">
-          <div class="record-title">${r.tipo === 'venda' ? '🟢 Venda' : '🔴 Compra'} — ${money(r.valor)}</div>
+          <div class="record-title">${
+            r.tipo === 'venda'
+              ? (r.status === 'rascunho' ? '🟠 Rascunho' : '🟢 Venda')
+              : '🔴 Compra'
+          } — ${money(r.valor)}</div>
           <div class="record-meta">
             ${escapeHtml(r.data || '')}<br>
             ${r.nome ? 'Cliente: ' + escapeHtml(r.nome) + '<br>' : ''}
+            ${r.telefone ? 'WhatsApp: ' + escapeHtml(r.telefone) + '<br>' : ''}
             ${r.local ? 'Local: ' + escapeHtml(r.local) + '<br>' : ''}
             ${escapeHtml(r.descricao || '')}<br>
             Pagamento: ${escapeHtml(r.formaPagamento || '')}<br>
             ${r.tipo === 'venda' ? 'Pago: ' + escapeHtml(r.pagoDia || '') + '<br>Entregue: ' + escapeHtml(r.entregueDia || '') + '<br>' : 'Recebimento: ' + escapeHtml(r.recebimento || '') + '<br>'}
             Obs.: ${escapeHtml(r.obs || '')}
           </div>
-          <div class="record-actions">
+          <div class="record-actions ${r.status === 'rascunho' && r.telefone ? 'actions-3' : ''}">
+            ${r.status === 'rascunho' && r.telefone
+              ? `<button class="success" onclick="openDraftWhatsApp(${r.index})">WhatsApp</button>`
+              : ''}
             <button class="secondary" onclick="editRecord('${r.collection}', ${r.index})">✏️ Editar</button>
             <button class="danger" onclick="deleteRecord('${r.collection}', ${r.index})">🗑️ Excluir</button>
           </div>
@@ -594,13 +1418,15 @@
       const data = getData();
       const record = data[collection][index];
       if (!record) return alert('Registro não encontrado.');
+      const config = getConfig();
 
       if (collection === 'sales') {
         resetSale();
         editingSaleIndex = index;
         setVal('saleName', record.nome || '');
+        setVal('salePhone', record.telefone || '');
         setVal('salePayment', record.formaPagamento || 'Pix Nubank');
-        setVal('saleObs', record.obs || 'Troca-Troca ABC');
+        setVal('saleObs', record.obs || config.defaultObs);
         setVal('saleDiscount', record.desconto || '');
         setVal('saleData', record.data || '');
         setVal('salePagoDia', record.pagoDia || '');
@@ -622,7 +1448,10 @@
           setVal('customLegendPrice', record.customLegendPrice || '');
         }
         document.getElementById('saleEditBanner').classList.remove('hidden');
-        document.getElementById('saleSaveButton').textContent = 'Atualizar venda';
+        document.getElementById('saleSaveButton').textContent =
+          record.status === 'rascunho' ? 'Confirmar venda' : 'Atualizar venda';
+        document.getElementById('saleDraftButton').textContent =
+          record.status === 'rascunho' ? 'Atualizar rascunho' : 'Salvar como rascunho';
         calculateSale();
         openTab('venda');
       } else {
@@ -632,7 +1461,7 @@
         setVal('buyLocal', record.local || '');
         setVal('buyValue', record.valor || '');
         setVal('buyPayment', record.formaPagamento || 'Pix Nubank');
-        setVal('buyObs', record.obs || 'Troca-Troca ABC');
+        setVal('buyObs', record.obs || config.defaultObs);
         setVal('buyData', record.data || '');
         setVal('buyRecebimento', record.recebimento || '');
         document.getElementById('buyEditBanner').classList.remove('hidden');
@@ -656,12 +1485,107 @@
     }
 
     function clearAll() {
-      if (confirm('Tem certeza que deseja apagar todos os registros deste aparelho?')) {
-        localStorage.removeItem(STORAGE_KEY);
+      if (confirm('Tem certeza que deseja apagar TODOS os dados deste aparelho (vendas, compras, agenda)? As configurações do Admin serão mantidas.')) {
+        const config = getConfig();
+        setData({ sales: [], buys: [], agenda: [], config });
         resetSale();
         resetBuy();
+        resetAgendaForm();
         renderHistory();
+        renderAgenda();
       }
+    }
+
+    function renderAdmin() {
+      const config = getConfig();
+      setVal('adminAppTitle', config.appTitle);
+      setVal('adminDefaultObs', config.defaultObs);
+
+      document.getElementById('adminItemsList').innerHTML = config.items.map((item, i) => `
+        <div class="admin-item grid">
+          <div class="small">ID: ${escapeHtml(item.id)}</div>
+          <div><label>Nome</label><input id="adminItemName${i}" value="${escapeAttr(item.name)}" /></div>
+          <div class="grid grid-2">
+            <div><label>Valor (R$)</label><input id="adminItemPrice${i}" type="number" min="0" step="0.01" value="${item.price}" /></div>
+            <div><label>Descrição na tela</label><input id="adminItemDesc${i}" value="${escapeAttr(item.desc || '')}" /></div>
+          </div>
+        </div>`).join('');
+
+      const p = config.pacotes;
+      document.getElementById('adminPacotesBox').innerHTML = `
+        <div class="grid grid-2">
+          <div><label>Nome</label><input id="adminPacotesName" value="${escapeAttr(p.name)}" /></div>
+          <div><label>Descrição</label><input id="adminPacotesDesc" value="${escapeAttr(p.desc || '')}" /></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:10px">
+          <div><label>Valor abaixo de ${p.threshold} un.</label><input id="adminPacotesBelow" type="number" min="0" step="0.01" value="${p.priceBelow}" /></div>
+          <div><label>Valor a partir de ${p.threshold} un.</label><input id="adminPacotesAbove" type="number" min="0" step="0.01" value="${p.priceAbove}" /></div>
+        </div>
+        <div style="margin-top:10px"><label>Limite (unidades)</label><input id="adminPacotesThreshold" type="number" min="1" value="${p.threshold}" /></div>`;
+
+      document.getElementById('adminLegendsList').innerHTML = config.legends.map((l, i) => `
+        <div class="admin-item grid grid-2">
+          <div><label>Nome</label><input id="adminLegendName${i}" value="${escapeAttr(l.name)}" /></div>
+          <div><label>Valor</label><input id="adminLegendPrice${i}" type="number" min="0" step="0.01" value="${l.price}" /></div>
+          <button class="danger" onclick="removeAdminLegend(${i})">Remover</button>
+        </div>`).join('');
+    }
+
+    function addAdminLegend() {
+      const data = getData();
+      data.config.legends.push({ name: 'Nova legend', price: 0 });
+      setData(data);
+      renderAdmin();
+    }
+
+    function removeAdminLegend(index) {
+      if (!confirm('Remover esta legend?')) return;
+      const data = getData();
+      data.config.legends.splice(index, 1);
+      setData(data);
+      renderAdmin();
+    }
+
+    function saveAdminConfig() {
+      const data = getData();
+      const config = data.config;
+      config.appTitle = document.getElementById('adminAppTitle').value.trim() || DEFAULT_CONFIG.appTitle;
+      config.defaultObs = document.getElementById('adminDefaultObs').value.trim() || DEFAULT_OBS;
+
+      config.items = config.items.map((item, i) => ({
+        ...item,
+        name: document.getElementById(`adminItemName${i}`).value.trim() || item.name,
+        price: Number(document.getElementById(`adminItemPrice${i}`).value) || 0,
+        desc: document.getElementById(`adminItemDesc${i}`).value.trim()
+      }));
+
+      config.pacotes = {
+        ...config.pacotes,
+        name: document.getElementById('adminPacotesName').value.trim() || config.pacotes.name,
+        desc: document.getElementById('adminPacotesDesc').value.trim(),
+        priceBelow: Number(document.getElementById('adminPacotesBelow').value) || 0,
+        priceAbove: Number(document.getElementById('adminPacotesAbove').value) || 0,
+        threshold: Number(document.getElementById('adminPacotesThreshold').value) || 50
+      };
+
+      config.legends = config.legends.map((l, i) => ({
+        name: document.getElementById(`adminLegendName${i}`).value.trim() || l.name,
+        price: Number(document.getElementById(`adminLegendPrice${i}`).value) || 0
+      }));
+
+      setData(data);
+      renderSaleForm();
+      alert('Configurações salvas! A tela de venda foi atualizada.');
+    }
+
+    function resetAdminConfig() {
+      if (!confirm('Restaurar todos os preços e textos padrão?')) return;
+      const data = getData();
+      data.config = deepClone(DEFAULT_CONFIG);
+      setData(data);
+      renderAdmin();
+      renderSaleForm();
+      alert('Configurações restauradas.');
     }
 
     function csvEscape(v) {
@@ -680,22 +1604,34 @@
 
     function exportCSV(type) {
       const data = getData();
-      let rows, headers, filename;
-      if (type === 'sales') {
-        headers = ['Data','Nome','Descrição','Valor total','Forma de pag.','Pago dia','Entregue dia','Obs.','Pacotes','Valor pacotes','Desconto'];
-        rows = data.sales.map(s => [s.data,s.nome,s.descricao,s.valor,s.formaPagamento,s.pagoDia,s.entregueDia,s.obs,s.pacotes,s.valorPacotes,s.desconto]);
-        filename = 'vendas-troca-troca-abc.csv';
-      } else {
-        headers = ['Data','Descrição','Local','Valor','Forma de pag.','Recebimento','Obs.'];
-        rows = data.buys.map(b => [b.data,b.descricao,b.local,b.valor,b.formaPagamento,b.recebimento,b.obs]);
-        filename = 'compras-troca-troca-abc.csv';
+      const { start, end } = getDateFilterValues();
+      let rows, headers, filename, suffix = '';
+
+      if (start || end) {
+        const de = start || 'inicio';
+        const ate = end || 'fim';
+        suffix = `-${de}-ate-${ate}`;
       }
+
+      if (type === 'sales') {
+        const sales = filterRecords(data.sales, 'data').filter(s => s.status !== 'rascunho');
+        headers = ['Data','Nome','Telefone','Descrição','Valor total','Forma de pag.','Pago dia','Entregue dia','Obs.','Pacotes','Valor pacotes','Desconto'];
+        rows = sales.map(s => [s.data,s.nome,s.telefone,s.descricao,s.valor,s.formaPagamento,s.pagoDia,s.entregueDia,s.obs,s.pacotes,s.valorPacotes,s.desconto]);
+        filename = `vendas-figurinhas${suffix}.csv`;
+      } else {
+        const buys = filterRecords(data.buys, 'data');
+        headers = ['Data','Descrição','Local','Valor','Forma de pag.','Recebimento','Obs.'];
+        rows = buys.map(b => [b.data,b.descricao,b.local,b.valor,b.formaPagamento,b.recebimento,b.obs]);
+        filename = `compras-figurinhas${suffix}.csv`;
+      }
+
+      if (!rows.length) return alert('Nenhum registro no período selecionado para exportar.');
       const csv = [headers, ...rows].map(row => row.map(csvEscape).join(';')).join('\n');
       download(filename, csv);
     }
 
     function exportBackup() {
-      download('backup-controle-troca-troca-abc.json', JSON.stringify(getData(), null, 2), 'application/json');
+      download('backup-controle-figurinhas.json', JSON.stringify(getData(), null, 2), 'application/json');
     }
 
     function restoreBackup() {
@@ -704,11 +1640,18 @@
       const reader = new FileReader();
       reader.onload = e => {
         try {
-          const data = JSON.parse(e.target.result);
-          if (!data.sales || !data.buys) throw new Error('Formato inválido');
-          setData(data);
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed.sales || !parsed.buys) throw new Error('Formato inválido');
+          setData({
+            sales: parsed.sales,
+            buys: parsed.buys,
+            agenda: parsed.agenda || [],
+            config: mergeConfig(parsed.config)
+          });
           alert('Backup restaurado!');
+          renderSaleForm();
           renderHistory();
+          renderAgenda();
         } catch {
           alert('Arquivo inválido.');
         }
@@ -720,12 +1663,106 @@
       return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
     }
 
-    document.querySelectorAll('input, select, textarea').forEach(el => el.addEventListener('input', calculateSale));
-    document.getElementById('legendSelect').addEventListener('change', () => {
-      document.getElementById('customLegendBox').classList.toggle('hidden', document.getElementById('legendSelect').value !== 'custom');
-      calculateSale();
+    function escapeAttr(str) {
+      return String(str).replace(/"/g, '&quot;');
+    }
+
+    document.querySelectorAll('#venda input, #venda select, #venda textarea').forEach(el => {
+      if (!el.id.startsWith('q') && el.id !== 'legendSelect') el.addEventListener('input', calculateSale);
     });
-    calculateSale();
+
+    let deferredInstallPrompt = null;
+
+    function isIos() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function isStandalone() {
+      return window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+    }
+
+    function updateInstallInstructions() {
+      const box = document.getElementById('installInstructions');
+      const btn = document.getElementById('installBtn');
+      if (!box) return;
+
+      if (isStandalone()) {
+        box.innerHTML = '<p class="small" style="margin:0">App já está instalado neste aparelho.</p>';
+        btn?.classList.add('hidden');
+        return;
+      }
+
+      if (location.protocol === 'file:') {
+        box.innerHTML = `
+          <p class="small" style="margin:0 0 8px">Você abriu o arquivo direto. Para instalar no celular:</p>
+          <ol class="small" style="margin:0; padding-left:18px">
+            <li>Coloque a pasta em um servidor HTTPS (GitHub Pages, Netlify, ou um host qualquer).</li>
+            <li>Ou no PC rode: <code>npx serve .</code> e abra o endereço no celular (mesma rede).</li>
+            <li>Depois use as instruções de instalação abaixo.</li>
+          </ol>`;
+        btn?.classList.add('hidden');
+        return;
+      }
+
+      if (isIos()) {
+        box.innerHTML = `
+          <p class="small" style="margin:0 0 6px"><strong>iPhone / iPad (Safari):</strong></p>
+          <ol class="small" style="margin:0; padding-left:18px">
+            <li>Abra este site no <strong>Safari</strong>.</li>
+            <li>Toque em <strong>Compartilhar</strong> (ícone □↑).</li>
+            <li>Escolha <strong>Adicionar à Tela de Início</strong>.</li>
+            <li>Confirme em <strong>Adicionar</strong>.</li>
+          </ol>
+          <p class="small" style="margin:8px 0 0">O Chrome/Firefox no iPhone não instala PWA — use o Safari.</p>`;
+        btn?.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = `
+        <p class="small" style="margin:0 0 6px"><strong>Android / Chrome:</strong></p>
+        <ol class="small" style="margin:0; padding-left:18px">
+          <li>Menu ⋮ → <strong>Instalar app</strong> / <strong>Adicionar à tela inicial</strong>.</li>
+          <li>Ou use o botão abaixo, se aparecer.</li>
+        </ol>`;
+      if (deferredInstallPrompt) btn?.classList.remove('hidden');
+      else btn?.classList.add('hidden');
+    }
+
+    function promptInstall() {
+      if (!deferredInstallPrompt) return updateInstallInstructions();
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.finally(() => {
+        deferredInstallPrompt = null;
+        updateInstallInstructions();
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      updateInstallInstructions();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      updateInstallInstructions();
+    });
+
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNav();
+    });
+
+    renderSaleForm();
+    setVal('saleObs', getConfig().defaultObs);
+    setVal('buyObs', getConfig().defaultObs);
+    updateFilterStatus();
+    updateInstallInstructions();
   </script>
 </body>
 </html>
